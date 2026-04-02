@@ -1,0 +1,425 @@
+/* =============================================
+   Social Media Badge Generator — Styles
+   Font: Montserrat | Responsive | Modern & Clean
+   ============================================= */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --color-primary: #FF754B;
+  --color-primary-light: #FF8F6B;
+  --color-accent: #FF754B;
+  --color-bg: #111111;
+  --color-surface: #1A1A1A;
+  --color-surface-hover: #222222;
+  --color-white: #ffffff;
+  --color-text: #F0F0F0;
+  --color-text-secondary: #9CA3AF;
+  --color-border: #2E2E2E;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --transition: 0.2s ease;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Header */
+.header {
+  border-bottom: 1px solid var(--color-border);
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  background: rgba(17, 17, 17, 0.92);
+}
+
+.header__inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header__logo-img {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+.header__tagline {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 48px 0 40px;
+}
+
+.hero__title {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.hero__title span {
+  background: linear-gradient(135deg, #FF754B, #FF9A76);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero__subtitle {
+  margin-top: 12px;
+  font-size: 1.05rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Generator Layout */
+.generator {
+  display: grid;
+  grid-template-columns: auto 380px;
+  gap: 40px;
+  align-items: start;
+  padding-bottom: 64px;
+}
+
+/* Canvas Preview */
+.generator__preview {
+  position: sticky;
+  top: 100px;
+  justify-self: end;
+}
+
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #1A1A1A;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  cursor: grab;
+}
+
+.canvas-wrapper:active {
+  cursor: grabbing;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Upload Overlay */
+.upload-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 17, 17, 0.85);
+  backdrop-filter: blur(4px);
+  transition: opacity var(--transition);
+  cursor: pointer;
+}
+
+.upload-overlay--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.upload-overlay__content {
+  text-align: center;
+  padding: 32px;
+}
+
+.upload-overlay__icon {
+  width: 48px;
+  height: 48px;
+  color: var(--color-accent);
+  margin-bottom: 16px;
+}
+
+.upload-overlay__text {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.upload-overlay__text strong {
+  color: var(--color-accent);
+}
+
+/* Drag-over state */
+.canvas-wrapper.drag-over .upload-overlay {
+  opacity: 1;
+  pointer-events: auto;
+  background: rgba(255, 117, 75, 0.08);
+  border: 2px dashed var(--color-accent);
+  border-radius: var(--radius);
+}
+
+/* Controls */
+.generator__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.control-card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition);
+}
+
+.control-card:hover {
+  box-shadow: var(--shadow-md);
+  background: var(--color-surface-hover);
+}
+
+.control-card--disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  user-select: none;
+}
+
+.control-card--disabled:hover {
+  box-shadow: var(--shadow-sm);
+  background: var(--color-surface);
+}
+
+.control-card__title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.control-card__desc {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.control-card__hint {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-top: 12px;
+}
+
+/* Upload Button */
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-accent);
+  color: #111111;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  border: none;
+  text-decoration: none;
+}
+
+.upload-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.upload-btn:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Slider */
+.slider-group {
+  margin-bottom: 8px;
+}
+
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 10px;
+}
+
+.slider-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-border);
+  outline: none;
+  transition: background var(--transition);
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  cursor: pointer;
+  border: 3px solid var(--color-surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform var(--transition);
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  cursor: pointer;
+  border: 3px solid var(--color-surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Download Button */
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+  background: linear-gradient(135deg, #FF754B, #FF9A76);
+  color: #111111;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 16px 32px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.download-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 117, 75, 0.3);
+}
+
+.download-btn:active {
+  transform: translateY(0);
+}
+
+/* Footer */
+.footer {
+  margin-top: auto;
+  padding: 24px 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  border-top: 1px solid var(--color-border);
+}
+
+/* =============================================
+   Responsive
+   ============================================= */
+
+@media (max-width: 900px) {
+  .generator {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .generator__preview {
+    position: static;
+    max-width: 520px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .hero {
+    padding: 32px 0 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 16px;
+  }
+
+  .hero__title {
+    font-size: 1.5rem;
+  }
+
+  .hero__subtitle {
+    font-size: 0.9rem;
+  }
+
+  .control-card {
+    padding: 18px;
+  }
+
+  .upload-btn, .download-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

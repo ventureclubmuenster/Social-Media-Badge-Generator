@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Startup Contacts 2026 — Badge Generator</title>
+  <meta name="description" content="Erstelle dein persönliches Startup Contacts 2026 Badge für Social Media.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header__inner">
+        <img class="header__logo-img" src="assets/SC_logo_nav_bar.png" alt="Startup Contacts">
+        <p class="header__tagline">Badge Generator</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <section class="hero">
+        <h2 class="hero__title">Erstelle dein <span>persönliches Badge</span></h2>
+        <p class="hero__subtitle">Lade dein Foto hoch, passe es an und teile es auf Social Media.</p>
+      </section>
+
+      <div class="generator">
+        <div class="generator__preview">
+          <div class="canvas-wrapper" id="canvasWrapper">
+            <canvas id="badgeCanvas" width="1080" height="1080"></canvas>
+            <div class="upload-overlay" id="uploadOverlay">
+              <div class="upload-overlay__content">
+                <svg class="upload-overlay__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p class="upload-overlay__text">Foto hierher ziehen<br>oder <strong>klicken</strong></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="generator__controls">
+          <div class="control-card">
+            <h3 class="control-card__title">1. Foto hochladen</h3>
+            <p class="control-card__desc">Wähle ein Portraitfoto für dein Badge.</p>
+            <label class="upload-btn" for="photoInput">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              Foto auswählen
+            </label>
+            <input type="file" id="photoInput" accept="image/png, image/jpeg" hidden>
+            <p class="control-card__hint" id="fileName">Kein Foto ausgewählt</p>
+          </div>
+
+          <div class="control-card control-card--disabled" id="adjustControls">
+            <h3 class="control-card__title">2. Anpassen</h3>
+            <p class="control-card__desc">Zoom und Position deines Fotos anpassen.</p>
+            
+            <div class="slider-group">
+              <label class="slider-label" for="zoomSlider">
+                <span>Zoom</span>
+                <span class="slider-value" id="zoomValue">100%</span>
+              </label>
+              <input type="range" id="zoomSlider" class="slider" min="50" max="300" value="100" step="1">
+            </div>
+
+            <p class="control-card__hint">💡 Ziehe dein Foto im Vorschaubild, um es zu positionieren.</p>
+          </div>
+
+          <div class="control-card control-card--disabled" id="downloadControls">
+            <h3 class="control-card__title">3. Herunterladen</h3>
+            <p class="control-card__desc">Dein Badge als PNG speichern und teilen.</p>
+            <button class="download-btn" id="downloadBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Badge herunterladen
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Startup Contacts. Alle Daten bleiben lokal in deinem Browser.</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
