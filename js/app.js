@@ -14,12 +14,15 @@
   const canvasWrapper = document.getElementById('canvasWrapper');
   const uploadOverlay = document.getElementById('uploadOverlay');
   const photoInput = document.getElementById('photoInput');
-  const zoomSlider = document.getElementById('zoomSlider');
-  const zoomValue = document.getElementById('zoomValue');
   const downloadBtn = document.getElementById('downloadBtn');
   const adjustControls = document.getElementById('adjustControls');
   const downloadControls = document.getElementById('downloadControls');
   const fileName = document.getElementById('fileName');
+  const saveModal = document.getElementById('saveModal');
+  const saveModalBackdrop = document.getElementById('saveModalBackdrop');
+  const saveModalClose = document.getElementById('saveModalClose');
+  const saveModalImage = document.getElementById('saveModalImage');
+  const saveModalText = document.getElementById('saveModalText');
 
   // State
   let userImage = null;
@@ -104,8 +107,6 @@
         zoom = 1;
         panX = 0;
         panY = 0;
-        zoomSlider.value = 100;
-        zoomValue.textContent = '100%';
 
         uploadOverlay.classList.add('upload-overlay--hidden');
         adjustControls.classList.remove('control-card--disabled');
@@ -148,13 +149,6 @@
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
-  });
-
-  // Zoom slider
-  zoomSlider.addEventListener('input', function () {
-    zoom = parseInt(this.value) / 100;
-    zoomValue.textContent = this.value + '%';
-    render();
   });
 
   // Pan (drag to reposition) — Mouse
@@ -219,8 +213,6 @@
       const delta = dist / lastPinchDist;
       zoom = Math.min(3, Math.max(0.5, zoom * delta));
       lastPinchDist = dist;
-      zoomSlider.value = Math.round(zoom * 100);
-      zoomValue.textContent = Math.round(zoom * 100) + '%';
       render();
     }
   }, { passive: false });
@@ -237,13 +229,46 @@
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.05 : 0.05;
     zoom = Math.min(3, Math.max(0.5, zoom + delta));
-    zoomSlider.value = Math.round(zoom * 100);
-    zoomValue.textContent = Math.round(zoom * 100) + '%';
     render();
   }, { passive: false });
 
+  // Environment detection for download strategy
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
+  const isInAppBrowser = /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Line\//i.test(ua) ||
+    /Twitter|TikTok|LinkedInApp|Snapchat|Pinterest|WhatsApp|Threads/i.test(ua) ||
+    (/; wv\)/.test(ua)); // generic Android WebView
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+
+  function openSaveModal(dataUrl) {
+    saveModalImage.src = dataUrl;
+    if (isIOS) {
+      saveModalText.innerHTML = 'Halte das Bild gedrückt und wähle <strong>„Zu Fotos hinzufügen"</strong>.';
+    } else if (isAndroid) {
+      saveModalText.innerHTML = 'Halte das Bild gedrückt und wähle <strong>„Bild herunterladen"</strong>.';
+    } else {
+      saveModalText.innerHTML = 'Rechtsklick auf das Bild und <strong>„Bild speichern unter…"</strong>.';
+    }
+    saveModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSaveModal() {
+    saveModal.hidden = true;
+    saveModalImage.src = '';
+    document.body.style.overflow = '';
+  }
+
+  saveModalBackdrop.addEventListener('click', closeSaveModal);
+  saveModalClose.addEventListener('click', closeSaveModal);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !saveModal.hidden) closeSaveModal();
+  });
+
   // Download as PNG
-  downloadBtn.addEventListener('click', function () {
+  downloadBtn.addEventListener('click', async function () {
     // Force a synchronous full-quality render
     ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
     ctx.fillStyle = '#FFFFFF';
@@ -251,15 +276,49 @@
     if (userImage) drawUserPhoto();
     if (foregroundImage) ctx.drawImage(foregroundImage, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
-    canvas.toBlob(function (blob) {
+    const exportName = 'startup-contacts-2026-badge.png';
+
+    canvas.toBlob(async function (blob) {
+      if (!blob) return;
+
+      const file = new File([blob], exportName, { type: 'image/png' });
+
+      // Strategy 1: Native share sheet with file (iOS Safari 15+, Android Chrome,
+      // most modern iOS/Android PWAs). Opens "Save to Photos" / "Download" options.
+      if (!isInAppBrowser && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Startup Contacts 2026 Badge'
+          });
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return; // user cancelled
+          // otherwise fall through to fallbacks
+        }
+      }
+
+      // Strategy 2: In-app browser, iOS (Safari's <a download> is unreliable there),
+      // or PWA standalone — show image in a modal so user can long-press → save.
+      if (isInAppBrowser || isIOS || isStandalone) {
+        const reader = new FileReader();
+        reader.onloadend = function () {
+          openSaveModal(reader.result);
+        };
+        reader.readAsDataURL(blob);
+        return;
+      }
+
+      // Strategy 3: Desktop / standard Android browser — trigger normal download.
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'startup-contacts-2026-badge.png';
+      a.download = exportName;
+      a.rel = 'noopener';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
     }, 'image/png');
   });
 

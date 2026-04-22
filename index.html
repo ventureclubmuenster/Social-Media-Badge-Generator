@@ -62,17 +62,9 @@
 
           <div class="control-card control-card--disabled" id="adjustControls">
             <h3 class="control-card__title">2. Anpassen</h3>
-            <p class="control-card__desc">Zoom und Position deines Fotos anpassen.</p>
-            
-            <div class="slider-group">
-              <label class="slider-label" for="zoomSlider">
-                <span>Zoom</span>
-                <span class="slider-value" id="zoomValue">100%</span>
-              </label>
-              <input type="range" id="zoomSlider" class="slider" min="50" max="300" value="100" step="1">
-            </div>
+            <p class="control-card__desc">Position deines Fotos anpassen.</p>
 
-            <p class="control-card__hint">💡 Ziehe dein Foto im Vorschaubild, um es zu positionieren.</p>
+            <p class="control-card__hint">💡 Ziehe dein Foto im Vorschaubild, um es zu positionieren. Mit zwei Fingern kannst du zoomen.</p>
           </div>
 
           <div class="control-card control-card--disabled" id="downloadControls">
@@ -91,6 +83,16 @@
       </div>
     </div>
   </main>
+
+  <div class="save-modal" id="saveModal" hidden>
+    <div class="save-modal__backdrop" id="saveModalBackdrop"></div>
+    <div class="save-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle">
+      <button class="save-modal__close" id="saveModalClose" aria-label="Schließen">&times;</button>
+      <h3 class="save-modal__title" id="saveModalTitle">Badge speichern</h3>
+      <p class="save-modal__text" id="saveModalText">Halte das Bild gedrückt und wähle <strong>„Bild sichern"</strong>.</p>
+      <img class="save-modal__image" id="saveModalImage" alt="Dein Badge">
+    </div>
+  </div>
 
   <footer class="footer">
     <div class="container">
