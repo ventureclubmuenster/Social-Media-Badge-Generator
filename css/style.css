@@ -583,6 +583,10 @@ canvas {
     padding: 18px;
   }
 
+  .control-card--hidden {
+    padding: 0;
+  }
+
   .upload-btn, .download-btn {
     width: 100%;
     justify-content: center;
