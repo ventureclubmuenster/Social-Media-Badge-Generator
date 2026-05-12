@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Startup Contacts 2026 — Badge Generator</title>
   <meta name="description" content="Erstelle dein persönliches Startup Contacts 2026 Badge für Social Media.">
+  <script>
+    (function () {
+      var mq = window.matchMedia('(prefers-color-scheme: light)');
+      var apply = function () {
+        document.documentElement.setAttribute('data-theme', mq.matches ? 'light' : 'dark');
+      };
+      apply();
+      if (mq.addEventListener) mq.addEventListener('change', apply);
+      else if (mq.addListener) mq.addListener(apply);
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -33,19 +44,23 @@
             <canvas id="badgeCanvas" width="1080" height="1080"></canvas>
             <div class="upload-overlay" id="uploadOverlay">
               <div class="upload-overlay__content">
-                <svg class="upload-overlay__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="17 8 12 3 7 8"/>
-                  <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                <p class="upload-overlay__text">Foto hierher ziehen<br>oder <strong>klicken</strong></p>
+                <div class="upload-overlay__icon-wrap">
+                  <svg class="upload-overlay__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <p class="upload-overlay__headline">Foto hochladen</p>
+                <p class="upload-overlay__text">Tippe hier oder ziehe ein Foto rein</p>
+                <span class="upload-overlay__cta">Foto auswählen</span>
               </div>
             </div>
           </div>
         </div>
 
         <div class="generator__controls">
-          <div class="control-card">
+          <div class="control-card control-card--active" id="uploadControls">
             <h3 class="control-card__title">1. Foto hochladen</h3>
             <p class="control-card__desc">Wähle ein Portraitfoto für dein Badge.</p>
             <label class="upload-btn" for="photoInput">
@@ -96,7 +111,7 @@
 
   <footer class="footer">
     <div class="container">
-      <p>&copy; 2026 Startup Contacts. Alle Daten bleiben lokal in deinem Browser.</p>
+      <p>&copy; 2026 Startup Contacts. Alle Daten bleiben lokal in deinem Browser. · <a href="download-demo.html" style="color: var(--color-accent);">Download-Methoden Demo</a></p>
     </div>
   </footer>
 

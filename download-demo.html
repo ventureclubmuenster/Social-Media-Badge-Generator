@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Methoden — Demo</title>
+  <meta name="description" content="Demo aller Wege, ein Bild auf Phone und Desktop zu speichern.">
+  <script>
+    (function () {
+      var mq = window.matchMedia('(prefers-color-scheme: light)');
+      var apply = function () {
+        document.documentElement.setAttribute('data-theme', mq.matches ? 'light' : 'dark');
+      };
+      apply();
+      if (mq.addEventListener) mq.addEventListener('change', apply);
+      else if (mq.addListener) mq.addListener(apply);
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .demo-hero {
+      text-align: center;
+      padding: 24px 0 16px;
+    }
+    .demo-hero__title {
+      font-size: clamp(1.5rem, 3.6vw, 2.25rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--color-text);
+    }
+    .demo-hero__title span {
+      background: linear-gradient(135deg, #FF754B, #FF9A76);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .demo-hero__subtitle {
+      margin-top: 6px;
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+    }
+    .demo-env {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+      margin: 16px auto 24px;
+      max-width: 900px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      word-break: break-word;
+    }
+    .demo-env strong { color: var(--color-accent); }
+    .demo-preview {
+      max-width: 320px;
+      margin: 0 auto 32px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      background: var(--color-canvas-bg);
+      box-shadow: var(--shadow-md);
+    }
+    .demo-preview img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      padding-bottom: 64px;
+    }
+    .demo-card {
+      position: relative;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 22px 22px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .demo-card__num {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--color-accent);
+      letter-spacing: 0.05em;
+    }
+    .demo-card__title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--color-text);
+      letter-spacing: -0.01em;
+    }
+    .demo-card__api {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.72rem;
+      color: var(--color-accent);
+      background: rgba(255, 117, 75, 0.1);
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      width: fit-content;
+    }
+    .demo-card__desc {
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      flex: 1;
+    }
+    .demo-card__btn {
+      margin-top: 8px;
+      background: linear-gradient(135deg, #FF754B, #FF9A76);
+      color: #FFFFFF;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+      width: 100%;
+    }
+    .demo-card__btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(255, 117, 75, 0.3);
+    }
+    .demo-card__btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .demo-card__status {
+      font-size: 0.78rem;
+      color: var(--color-text-secondary);
+      min-height: 18px;
+      margin-top: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .demo-card__status.is-ok { color: #4ADE80; }
+    .demo-card__status.is-err { color: #F87171; }
+    .demo-card__support {
+      font-size: 0.7rem;
+      color: var(--color-text-secondary);
+      opacity: 0.7;
+      margin-top: 4px;
+    }
+    .demo-card__qr {
+      margin-top: 8px;
+      background: #FFFFFF;
+      padding: 8px;
+      border-radius: var(--radius-sm);
+      align-self: center;
+    }
+    .demo-card__qr img {
+      display: block;
+      width: 180px;
+      height: 180px;
+    }
+    .demo-card__qr[hidden] { display: none; }
+    .demo-banner {
+      background: linear-gradient(135deg, rgba(255, 117, 75, 0.15), rgba(255, 154, 118, 0.1));
+      border: 1px solid var(--color-accent);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      color: var(--color-text);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    .demo-banner[hidden] { display: none; }
+    .demo-banner strong { color: var(--color-accent); }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin: 8px 0 0;
+    }
+    .back-link:hover { color: var(--color-accent); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header__inner">
+        <img class="header__logo-img" src="assets/SC_logo_nav_bar.png" alt="Startup Contacts">
+        <p class="header__tagline">Download Methoden Demo</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <a class="back-link" href="index.html">← Zurück zum Generator</a>
+
+      <section class="demo-hero">
+        <h2 class="demo-hero__title">9 Wege ein Bild zu <span>speichern</span></h2>
+        <p class="demo-hero__subtitle">Quelle: <code>assets/foreground v3.png</code> — teste jede Methode auf deinem Gerät.</p>
+      </section>
+
+      <div class="demo-env" id="demoEnv">Erkenne Umgebung…</div>
+
+      <div class="demo-preview">
+        <img src="assets/foreground v3.png" alt="Demo Bild" id="demoImg">
+      </div>
+
+      <div class="demo-grid">
+
+        <div class="demo-card">
+          <span class="demo-card__num">01</span>
+          <h3 class="demo-card__title">Web Share API</h3>
+          <span class="demo-card__api">navigator.share({ files })</span>
+          <p class="demo-card__desc">Öffnet das native Share Sheet (iOS Safari 15+, Android Chrome). User wählt „Sichern in Fotos" / „Herunterladen".</p>
+          <button class="demo-card__btn" data-variant="share">Teilen / Speichern</button>
+          <p class="demo-card__status" data-status="share"></p>
+          <p class="demo-card__support">✓ iOS Safari, Android Chrome, PWA · ✗ Meiste In-App Browser</p>
+        </div>
+
+        <div class="demo-card">
+          <span class="demo-card__num">02</span>
+          <h3 class="demo-card__title">Klassischer Anchor</h3>
+          <span class="demo-card__api">&lt;a download&gt;</span>
+          <p class="demo-card__desc">Der Klassiker. Funktioniert auf Desktop und Android Chrome zuverlässig — iOS Safari öffnet das Bild stattdessen inline.</p>
+          <button class="demo-card__btn" data-variant="anchor">Download starten</button>
+          <p class="demo-card__status" data-status="anchor"></p>
+          <p class="demo-card__support">✓ Desktop, Android Chrome · ✗ iOS, In-App Browser</p>
+        </div>
+
+        <div class="demo-card">
+          <span class="demo-card__num">03</span>
+          <h3 class="demo-card__title">Long-Press Modal</h3>
+          <span class="demo-card__api">&lt;img&gt; + Drücken</span>
+          <p class="demo-card__desc">Bild inline anzeigen — User hält das Bild gedrückt und nutzt das native Kontextmenü „Bild sichern".</p>
+          <button class="demo-card__btn" data-variant="modal">Vollbild zeigen</button>
+          <p class="demo-card__status" data-status="modal"></p>
+          <p class="demo-card__support">✓ Universell · benötigt User-Aktion</p>
+        </div>
+
+        <div class="demo-card">
+          <span class="demo-card__num">04</span>
+          <h3 class="demo-card__title">Neuer Tab</h3>
+          <span class="demo-card__api">window.open(blobUrl)</span>
+          <p class="demo-card__desc">Bild in neuem Tab öffnen — User kann dort speichern. Popup-Blocker und In-App-Browser hindern dies oft.</p>
+          <button class="demo-card__btn" data-variant="newtab">Bild in Tab öffnen</button>
+          <p class="demo-card__status" data-status="newtab"></p>
+          <p class="demo-card__support">✓ Desktop, Mobile-Browser · ✗ Viele In-App-Browser</p>
+        </div>
+
+        <div class="demo-card">
+          <span class="demo-card__num">05</span>
+          <h3 class="demo-card__title">Tab-Navigation</h3>
+          <span class="demo-card__api">location.href = blobUrl</span>
+          <p class="demo-card__desc">Aktuellen Tab zum Bild navigieren — funktioniert fast überall, zerstört aber den App-Zustand (Back-Button nötig).</p>
+          <button class="demo-card__btn" data-variant="navigate">Zum Bild navigieren</button>
+          <p class="demo-card__status" data-status="navigate"></p>
+          <p class="demo-card__support">✓ Universell · App-State geht verloren</p>
+        </div>
+
+        <div class="demo-card">
+          <span class="demo-card__num">06</span>
+          <h3 class="demo-card__title">Zwischenablage</h3>
+          <span class="demo-card__api">clipboard.write(ClipboardItem)</span>
+          <p class="demo-card__desc">Bild in die System-Zwischenablage kopieren — User fügt es direkt in Fotos, Notes oder Instagram ein.</p>
+          <button class="demo-card__btn" data-variant="clipboard">In Zwischenablage</button>
+          <p class="demo-card__status" data-status="clipboard"></p>
+          <p class="demo-card__support">✓ iOS 13.4+, Android Chrome · kein „Save", aber „Paste"</p>
+        </div>
+
+        <div class="demo-card">
+          <span class="demo-card__num">07</span>
+          <h3 class="demo-card__title">Service Worker</h3>
+          <span class="demo-card__api">Content-Disposition: attachment</span>
+          <p class="demo-card__desc">SW fängt /__download/* ab und sendet das Bild mit Attachment-Header — erzwingt echten Download wo &lt;a download&gt; ignoriert wird.</p>
+          <button class="demo-card__btn" data-variant="sw">SW Download</button>
+          <p class="demo-card__status" data-status="sw"></p>
+          <p class="demo-card__support">✓ iOS Safari, Android Chrome · ✗ Meiste In-App-Browser (kein SW)</p>
+        </div>
+
+        <div class="demo-card">
+          <span class="demo-card__num">08</span>
+          <h3 class="demo-card__title">QR Code</h3>
+          <span class="demo-card__api">Scan with another device</span>
+          <p class="demo-card__desc">QR Code für das Bild generieren — mit einem zweiten Gerät scannen und außerhalb des In-App-Browsers laden.</p>
+          <button class="demo-card__btn" data-variant="qr">QR Code zeigen</button>
+          <div class="demo-card__qr" data-qr hidden><img alt="QR Code" id="qrImg"></div>
+          <p class="demo-card__status" data-status="qr"></p>
+          <p class="demo-card__support">✓ Bulletproof · benötigt zweites Gerät</p>
+        </div>
+
+        <div class="demo-card">
+          <span class="demo-card__num">09</span>
+          <h3 class="demo-card__title">In externem Browser öffnen</h3>
+          <span class="demo-card__api">Detect WebView + Hinweis</span>
+          <p class="demo-card__desc">In-App-Browser erkennen und plattform-spezifische Anweisung zeigen, wie der User in Safari/Chrome wechselt.</p>
+          <button class="demo-card__btn" data-variant="banner">Hinweis zeigen</button>
+          <div class="demo-banner" data-banner hidden></div>
+          <p class="demo-card__status" data-status="banner"></p>
+          <p class="demo-card__support">✓ Universeller UX-Trick</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <div class="save-modal" id="saveModal" hidden>
+    <div class="save-modal__backdrop" id="saveModalBackdrop"></div>
+    <div class="save-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle">
+      <button class="save-modal__close" id="saveModalClose" aria-label="Schließen">&times;</button>
+      <h3 class="save-modal__title" id="saveModalTitle">Bild speichern</h3>
+      <p class="save-modal__text" id="saveModalText">Halte das Bild gedrückt und wähle <strong>„Bild sichern"</strong>.</p>
+      <img class="save-modal__image" id="saveModalImage" alt="Demo Bild">
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 Startup Contacts · Download-Methoden Demo</p>
+    </div>
+  </footer>
+
+  <script src="js/download-demo.js"></script>
+</body>
+</html>
