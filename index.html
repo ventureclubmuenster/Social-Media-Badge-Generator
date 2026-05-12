@@ -42,6 +42,18 @@
         <div class="generator__preview">
           <div class="canvas-wrapper" id="canvasWrapper">
             <canvas id="badgeCanvas" width="1080" height="1080"></canvas>
+            <div class="move-hint" id="moveHint" aria-hidden="true">
+              <div class="move-hint__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="5 9 2 12 5 15"/>
+                  <polyline points="9 5 12 2 15 5"/>
+                  <polyline points="15 19 12 22 9 19"/>
+                  <polyline points="19 9 22 12 19 15"/>
+                  <line x1="2" y1="12" x2="22" y2="12"/>
+                  <line x1="12" y1="2" x2="12" y2="22"/>
+                </svg>
+              </div>
+            </div>
             <div class="upload-overlay" id="uploadOverlay">
               <div class="upload-overlay__content">
                 <div class="upload-overlay__icon-wrap">
@@ -85,14 +97,23 @@
           <div class="control-card control-card--disabled" id="downloadControls">
             <h3 class="control-card__title">3. Herunterladen</h3>
             <p class="control-card__desc">Dein Badge als PNG speichern und teilen.</p>
-            <button class="download-btn" id="downloadBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Badge herunterladen
-            </button>
+            <div class="download-actions">
+              <button class="download-btn" id="downloadBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Herunterladen
+              </button>
+              <button class="copy-btn" id="copyBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                Bild kopieren
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -111,7 +132,7 @@
 
   <footer class="footer">
     <div class="container">
-      <p>&copy; 2026 Startup Contacts. Alle Daten bleiben lokal in deinem Browser. · <a href="download-demo.html" style="color: var(--color-accent);">Download-Methoden Demo</a></p>
+      <p>&copy; 2026 Startup Contacts. Alle Daten bleiben lokal in deinem Browser.</p>
     </div>
   </footer>
 

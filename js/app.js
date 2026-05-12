@@ -19,6 +19,8 @@
   const adjustControls = document.getElementById('adjustControls');
   const downloadControls = document.getElementById('downloadControls');
   const fileName = document.getElementById('fileName');
+  const moveHint = document.getElementById('moveHint');
+  const copyBtn = document.getElementById('copyBtn');
   const saveModal = document.getElementById('saveModal');
   const saveModalBackdrop = document.getElementById('saveModalBackdrop');
   const saveModalClose = document.getElementById('saveModalClose');
@@ -28,6 +30,7 @@
   // State
   let userImage = null;
   let foregroundImage = null;
+  let foregroundAlpha = null; // Uint8Array of alpha values, indexed [y * CANVAS_SIZE + x]
   let zoom = 1;
   let panX = 0;
   let panY = 0;
@@ -40,26 +43,49 @@
   let hasPanned = false;
 
 
-  // Load foreground overlay — fetched at runtime, converted to data URL
-  // to keep the canvas untainted for toBlob() export.
-  function loadForeground() {
-    fetch('assets/foreground%20v4.png')
-      .then(function (res) { return res.blob(); })
-      .then(function (blob) {
-        return new Promise(function (resolve) {
+  // Load foreground overlay and build alpha atlas for hit-testing
+  async function loadForeground() {
+    try {
+      const res = await fetch('assets/foreground%20v4.png');
+      if (!res.ok) throw new Error('fetch ' + res.status);
+      const blob = await res.blob();
+
+      // Prefer createImageBitmap; fall back to <img> + data URL if unavailable
+      let source;
+      if (typeof createImageBitmap === 'function') {
+        try { source = await createImageBitmap(blob); }
+        catch (e) { /* iOS quirks — fall through */ }
+      }
+      if (!source) {
+        source = await new Promise(function (resolve, reject) {
           const reader = new FileReader();
-          reader.onloadend = function () { resolve(reader.result); };
+          reader.onloadend = function () {
+            const img = new Image();
+            img.onload = function () { resolve(img); };
+            img.onerror = reject;
+            img.src = reader.result;
+          };
+          reader.onerror = reject;
           reader.readAsDataURL(blob);
         });
-      })
-      .then(function (dataUrl) {
-        const img = new Image();
-        img.onload = function () {
-          foregroundImage = img;
-          render();
-        };
-        img.src = dataUrl;
-      });
+      }
+      foregroundImage = source;
+
+      const offscreen = document.createElement('canvas');
+      offscreen.width = CANVAS_SIZE;
+      offscreen.height = CANVAS_SIZE;
+      const offCtx = offscreen.getContext('2d');
+      offCtx.drawImage(source, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+      const raw = offCtx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE).data;
+
+      const atlas = new Uint8Array(CANVAS_SIZE * CANVAS_SIZE);
+      for (let i = 0; i < atlas.length; i++) atlas[i] = raw[i * 4 + 3];
+      foregroundAlpha = atlas;
+
+      render();
+    } catch (err) {
+      console.error('Foreground load failed:', err);
+    }
   }
 
   // Render all 3 layers
@@ -121,6 +147,7 @@
         panY = 0;
         hasPanned = false;
 
+        moveHint.classList.add('move-hint--visible');
         uploadOverlay.classList.add('upload-overlay--hidden');
         adjustControls.classList.remove('control-card--disabled');
         adjustControls.classList.add('control-card--active');
@@ -168,7 +195,28 @@
     }
   });
 
+  // Maps a client pointer position to internal canvas coordinates (0–CANVAS_SIZE).
+  // Uses canvas.getBoundingClientRect() for precision — avoids wrapper border offsets.
+  function canvasPoint(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left) / rect.width  * CANVAS_SIZE,
+      y: (clientY - rect.top)  / rect.height * CANVAS_SIZE
+    };
+  }
+
+  // Returns true when the foreground PNG is transparent at these canvas coords,
+  // meaning the user photo layer is exposed and can be dragged there.
+  function isForegroundTransparent(cx, cy) {
+    if (!foregroundAlpha) return false; // block drag until atlas is ready
+    const x = Math.round(cx);
+    const y = Math.round(cy);
+    if (x < 0 || y < 0 || x >= CANVAS_SIZE || y >= CANVAS_SIZE) return false;
+    return foregroundAlpha[y * CANVAS_SIZE + x] < 10;
+  }
+
   function markAdjusted() {
+    moveHint.classList.remove('move-hint--visible');
     if (hasPanned) return;
     hasPanned = true;
     adjustControls.classList.remove('control-card--active');
@@ -180,11 +228,23 @@
   // Pan (drag to reposition) — Mouse
   canvasWrapper.addEventListener('mousedown', function (e) {
     if (!userImage) return;
+    const pt = canvasPoint(e.clientX, e.clientY);
+    if (!isForegroundTransparent(pt.x, pt.y)) return;
     isDragging = true;
+    canvasWrapper.classList.remove('is-draggable');
+    canvasWrapper.classList.add('is-dragging');
     dragStartX = e.clientX;
     dragStartY = e.clientY;
     panStartX = panX;
     panStartY = panY;
+  });
+
+  // Update cursor based on whether the hovered pixel is draggable
+  canvasWrapper.addEventListener('mousemove', function (e) {
+    if (isDragging) return;
+    if (!userImage) return;
+    const pt = canvasPoint(e.clientX, e.clientY);
+    canvasWrapper.classList.toggle('is-draggable', isForegroundTransparent(pt.x, pt.y));
   });
 
   document.addEventListener('mousemove', function (e) {
@@ -201,11 +261,14 @@
 
   document.addEventListener('mouseup', function () {
     isDragging = false;
+    canvasWrapper.classList.remove('is-dragging');
   });
 
   // Pan — Touch
   canvasWrapper.addEventListener('touchstart', function (e) {
     if (!userImage || e.touches.length !== 1) return;
+    const pt = canvasPoint(e.touches[0].clientX, e.touches[0].clientY);
+    if (!isForegroundTransparent(pt.x, pt.y)) return;
     isDragging = true;
     dragStartX = e.touches[0].clientX;
     dragStartY = e.touches[0].clientY;
@@ -355,6 +418,44 @@
       document.body.removeChild(a);
       setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
     }, 'image/png');
+  });
+
+  // Copy to clipboard
+  copyBtn.addEventListener('click', async function () {
+    if (!navigator.clipboard || !window.ClipboardItem) {
+      alert('Dein Browser unterstützt das Kopieren von Bildern leider nicht. Bitte nutze "Herunterladen".');
+      return;
+    }
+
+    // Force a synchronous full-quality render first
+    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    if (userImage) drawUserPhoto();
+    if (foregroundImage) ctx.drawImage(foregroundImage, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': new Promise(function (resolve, reject) {
+          canvas.toBlob(function (blob) {
+            if (blob) resolve(blob); else reject(new Error('toBlob failed'));
+          }, 'image/png');
+        }) })
+      ]);
+      copyBtn.classList.add('copy-btn--success');
+      const origLabel = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Kopiert!';
+      setTimeout(function () {
+        copyBtn.classList.remove('copy-btn--success');
+        copyBtn.innerHTML = origLabel;
+      }, 2500);
+    } catch (err) {
+      if (err && err.name === 'NotAllowedError') {
+        alert('Bitte erlaube den Zugriff auf die Zwischenablage in deinem Browser.');
+      } else {
+        alert('Kopieren fehlgeschlagen. Bitte nutze "Herunterladen".');
+      }
+    }
   });
 
   // Match preview size to controls height

@@ -162,12 +162,51 @@ body {
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--color-border);
   overflow: hidden;
-  cursor: grab;
+  cursor: default;
   transition: background var(--transition), border-color var(--transition);
 }
 
-.canvas-wrapper:active {
-  cursor: grabbing;
+.canvas-wrapper.is-draggable { cursor: grab; }
+.canvas-wrapper.is-dragging  { cursor: grabbing; }
+
+/* Move hint icon — shown after photo upload, dismissed on first drag */
+.move-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+.move-hint.move-hint--visible {
+  opacity: 1;
+  animation: moveHintPulse 2s ease-in-out infinite;
+}
+
+.move-hint__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(56px, 12%, 80px);
+  height: clamp(56px, 12%, 80px);
+  background: rgba(0, 0, 0, 0.38);
+  border-radius: 50%;
+  backdrop-filter: blur(2px);
+}
+
+.move-hint svg {
+  width: 52%;
+  height: 52%;
+  color: #fff;
+}
+
+@keyframes moveHintPulse {
+  0%, 100% { transform: scale(1);   opacity: 0.85; }
+  50%       { transform: scale(1.1); opacity: 0.55; }
 }
 
 canvas {
@@ -191,6 +230,7 @@ canvas {
   cursor: pointer;
   border: 2px dashed transparent;
   border-radius: var(--radius);
+  z-index: 5;
 }
 
 .upload-overlay::after {
@@ -473,6 +513,12 @@ canvas {
 }
 
 /* Download Button */
+.download-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
 .download-btn {
   display: inline-flex;
   align-items: center;
@@ -522,6 +568,45 @@ canvas {
 
 .download-btn--pulse:hover {
   animation: none;
+}
+
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  color: var(--color-text);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 16px 16px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  transition: transform var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.copy-btn svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.copy-btn:active {
+  transform: translateY(0);
+}
+
+.copy-btn--success {
+  border-color: #22c55e;
+  color: #22c55e;
 }
 
 /* Footer */
@@ -587,9 +672,16 @@ canvas {
     padding: 0;
   }
 
-  .upload-btn, .download-btn {
+  .upload-btn, .download-btn, .copy-btn {
     width: 100%;
     justify-content: center;
+    font-size: 0.875rem;
+    padding: 13px 10px;
+  }
+
+  .download-btn svg, .copy-btn svg {
+    width: 17px;
+    height: 17px;
   }
 
   .upload-overlay__icon-wrap {
@@ -609,5 +701,21 @@ canvas {
 
   .upload-overlay__text {
     font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .download-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .download-btn, .copy-btn {
+    font-size: 1rem;
+    padding: 15px 20px;
+  }
+
+  .download-btn svg, .copy-btn svg {
+    width: 20px;
+    height: 20px;
   }
 }
